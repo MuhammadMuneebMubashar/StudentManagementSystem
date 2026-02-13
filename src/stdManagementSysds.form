@@ -22,7 +22,7 @@
           <grid id="d7fce" binding="loginPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="Login"/>
+              <tabbedpane title="Login" enabled="false"/>
             </constraints>
             <properties>
               <enabled value="true"/>
@@ -170,7 +170,7 @@
           <grid id="a4d72" binding="systempanel" layout-manager="GridLayoutManager" row-count="7" column-count="13" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <tabbedpane title="System"/>
+              <tabbedpane title="System" enabled="false"/>
             </constraints>
             <properties>
               <enabled value="true"/>

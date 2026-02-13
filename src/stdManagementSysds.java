@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -44,6 +45,7 @@ public class stdManagementSysds {
     private JTable table1;
     private JButton button3;
     private String username;
+    boolean search = false;
 
     void checkLoginDetails(){
         try {
@@ -158,19 +160,15 @@ public class stdManagementSysds {
             return;
         }
         String [] check;
-        boolean found = false;
         for (int i  = 0; i < students.size(); i++) {
             check =  students.get(i).split(", ");
             if (check[0].equalsIgnoreCase(nameInputt.getText())){
                 tabbedpane.setSelectedIndex(4);
-                found = true;
-                break;
+                displayStd(students);
+                return;
             }
-        }if (! found){
-            JOptionPane.showMessageDialog(null, "Student not found");
-            return;
-        }
-        displayStd(students);
+        }JOptionPane.showMessageDialog(null, "Student not found");
+
     }
     stdManagementSysds(){
         submitButton.addActionListener(new ActionListener() {
@@ -219,7 +217,13 @@ public class stdManagementSysds {
         submitButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                removeStd();
+                if (! search ){
+                    removeStd();
+                }else{
+                    searchStd();
+                    search = false;
+                }
+
             }
         });
         viewStudentsButton.addActionListener(new ActionListener() {
@@ -232,7 +236,7 @@ public class stdManagementSysds {
             @Override
             public void actionPerformed(ActionEvent e) {
                 tabbedpane.setSelectedIndex(3);
-                searchStd();
+                search = true;
             }
         });
     }
