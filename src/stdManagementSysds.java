@@ -1,6 +1,5 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -21,13 +20,11 @@ public class stdManagementSysds {
     private JPanel loginPanel;
     private JTabbedPane tabbedpane;
     private JPanel systempanel;
-    private JButton updateStudentButton;
     private JButton viewStudentsButton;
     private JButton removeStudentButton;
     private JButton addStudentButton;
     private JButton logoutButton;
     private JLabel welcomeUser;
-    private JButton searchStudentButton;
     private JPanel AddStdPg;
     private JTextField nameInput;
     private JTextField FNameInput;
@@ -44,8 +41,11 @@ public class stdManagementSysds {
     private JScrollPane scrollPane;
     private JTable table1;
     private JButton button3;
+    private JTextField searchInput;
+    private JButton searchButton;
+    private JButton clearSearchButton;
+    private JButton updateButton;
     private String username;
-    boolean search = false;
 
     void checkLoginDetails(){
         try {
@@ -74,14 +74,22 @@ public class stdManagementSysds {
         inputUsername.setText("");
 
     }
-    void addTOStdFile(ArrayList <String> input){
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt",true))) {
+    int latestIdx(){
+        ArrayList <String> list = loadData();
+        if (list.size()==0){
+            return 0;
+        }
+        return Integer.parseInt(list.get(list.size()-1).split(", ")[0]);
+    }
+    boolean addTOStdFile(ArrayList <String> input, boolean mode){
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt",mode))) {
             for (int i = 0 ; i < input.size(); i++) {
                 bw.write(input.get(i) + "\n");
             }
-            JOptionPane.showMessageDialog(null, "Student Added Successfully");
+            return true;
         }catch (Exception e){
             JOptionPane.showMessageDialog(null,"Error occured while adding student to database");
+            return false;
         }
     }
     void inputField(){
@@ -91,8 +99,10 @@ public class stdManagementSysds {
             return;
         }
         ArrayList <String> input=new ArrayList<>();
-        input.add(nameInput.getText()+", "+DOBinput.getText()+", "+ FNameInput.getText()+", "+ContactInput.getText()+", "+programInput.getText());
-        addTOStdFile(input);
+        input.add((latestIdx() + 1) +", " +nameInput.getText()+", "+DOBinput.getText()+", "+ FNameInput.getText()+", "+ContactInput.getText()+", "+programInput.getText());
+        if (addTOStdFile(input , true)){
+            JOptionPane.showMessageDialog(null, "Student Added Successfully");
+        }
         nameInput.setText("");
         DOBinput.setText("");
         FNameInput.setText("");
@@ -118,7 +128,7 @@ public class stdManagementSysds {
         boolean found = false;
         for (String s :  students){
             String [] input = s.split(", ");
-            if (input[0].equalsIgnoreCase(nameInputt.getText())){
+            if (input[1].equalsIgnoreCase(nameInputt.getText())){
                 found = true;
                 continue;
             }
@@ -128,11 +138,11 @@ public class stdManagementSysds {
         if (! found){
             JOptionPane.showMessageDialog(null, "Student not found");
             return;
-        }addTOStdFile(students);
+        }addTOStdFile(students, false);
     }
     void displayStd(ArrayList <String> students){
         tabbedpane.setSelectedIndex(4);
-        String [] columns = {"Name","DOB","Father Name","Contact","Program"};
+        String [] columns = {"Idx", "Name","DOB","Father Name","Contact","Program"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         table1.setModel(model);
         String [] line;
@@ -143,7 +153,8 @@ public class stdManagementSysds {
                     line[1],
                     line[2],
                     line[3],
-                    line[4]
+                    line[4],
+                    line[5]
             };
             model.addRow(row);
         }
@@ -152,23 +163,59 @@ public class stdManagementSysds {
         ArrayList <String> students = loadData();
         displayStd(students);
     }
+    boolean containSubstr(String a , String b){
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+        if (a.contains(b)){
+            return true;
+        }return false;
+    }
+
     void searchStd(){
-        ArrayList <String> students = loadData();
-        if (students.size() == 0){
-            JOptionPane.showMessageDialog(null, "Empty record ");
-            tabbedpane.setSelectedIndex(1);
+        if (searchInput.getText().equals("")){
+            JOptionPane.showMessageDialog(null, "Please enter to search");
             return;
         }
-        String [] check;
+        ArrayList <String> students = loadData();
+        boolean found = false;
+        if (students.size() == 0){
+            JOptionPane.showMessageDialog(null, "Empty record ");
+            return;
+        }
+        ArrayList <String> Student = new ArrayList<>();
         for (int i  = 0; i < students.size(); i++) {
-            check =  students.get(i).split(", ");
-            if (check[0].equalsIgnoreCase(nameInputt.getText())){
-                tabbedpane.setSelectedIndex(4);
-                displayStd(students);
-                return;
+            if (containSubstr(students.get(i), searchInput.getText().trim())){
+                found = true;
+                Student.add(students.get(i));
             }
-        }JOptionPane.showMessageDialog(null, "Student not found");
+        }if (found){
+            displayStd(Student);
+            return;
+        }
+        JOptionPane.showMessageDialog(null, "Student not found");
 
+    }
+    void updStd(){
+        if (table1.getSelectedRow() == -1){
+            JOptionPane.showMessageDialog(null, "Please select a field to update");
+            return;
+        }
+        if (table1.isEditing()) {
+            table1.getCellEditor().stopCellEditing();
+        }
+        int checkBox = table1.getSelectedRow();
+        int idx = table1.getSelectedColumn();
+        ArrayList <String> students = loadData();
+        String [] edit =  students.get(checkBox).split(", ");
+        edit[idx] = table1.getValueAt(checkBox,idx).toString();
+        String update = "";
+        for (String s : edit) {
+            update += s + ", ";
+        }
+        update = update.substring(0 , update.length()-2);
+        students.set(checkBox,update);
+        addTOStdFile(students, false);
+        JOptionPane.showMessageDialog(null, "Updated successfully");
     }
     stdManagementSysds(){
         submitButton.addActionListener(new ActionListener() {
@@ -217,13 +264,7 @@ public class stdManagementSysds {
         submitButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (! search ){
                     removeStd();
-                }else{
-                    searchStd();
-                    search = false;
-                }
-
             }
         });
         viewStudentsButton.addActionListener(new ActionListener() {
@@ -232,11 +273,24 @@ public class stdManagementSysds {
                 showStd();
             }
         });
-        searchStudentButton.addActionListener(new ActionListener() {
+        searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                tabbedpane.setSelectedIndex(3);
-                search = true;
+                searchStd();
+            }
+        });
+        clearSearchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchInput.setText("");
+                showStd();
+            }
+        });
+
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updStd();
             }
         });
     }
