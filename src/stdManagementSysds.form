@@ -59,7 +59,9 @@
                             <preferred-size width="150" height="-1"/>
                           </grid>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <font size="16" style="1"/>
+                        </properties>
                       </component>
                       <component id="18c58" class="javax.swing.JPasswordField" binding="inputPassword">
                         <constraints>
@@ -67,7 +69,9 @@
                             <preferred-size width="150" height="-1"/>
                           </grid>
                         </constraints>
-                        <properties/>
+                        <properties>
+                          <font size="16" style="1"/>
+                        </properties>
                       </component>
                       <component id="9b997" class="javax.swing.JLabel" binding="usernameLab">
                         <constraints>
