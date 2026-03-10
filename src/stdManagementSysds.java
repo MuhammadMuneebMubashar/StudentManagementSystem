@@ -47,11 +47,26 @@ public class stdManagementSysds {
     private JButton updateButton;
     private String username;
 
+    File checkForFile(){
+        File file = new File("security.txt");
+        try{
+            file.createNewFile();
+        }catch(IOException e){
+            JOptionPane.showMessageDialog(null,"File error");
+        }return file;
+    }
+    void checkForDBSFile(){
+        try{
+            File file = new File("students.txt");
+            file.createNewFile();
+        }catch(IOException e){
+            JOptionPane.showMessageDialog(null,"File error");
+        }
+    }
     void checkLoginDetails(){
         try {
             username = "";
-            File file = new File("data/security.txt");
-            file.createNewFile();
+            File file =  checkForFile();
             username = inputUsername.getText();
             String password = inputPassword.getText();
             if (username.equals("") || password.equals("")) {
@@ -82,7 +97,7 @@ public class stdManagementSysds {
         return Integer.parseInt(list.get(list.size()-1).split(", ")[0]);
     }
     boolean addTOStdFile(ArrayList <String> input, boolean mode){
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt",mode))) {
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("students.txt",mode))) {
             for (int i = 0 ; i < input.size(); i++) {
                 bw.write(input.get(i) + "\n");
             }
@@ -111,7 +126,7 @@ public class stdManagementSysds {
     }
     ArrayList<String> loadData(){
         ArrayList <String> students = new ArrayList();
-        try(BufferedReader br = new BufferedReader(new FileReader("data/students.txt"))){
+        try(BufferedReader br = new BufferedReader(new FileReader("students.txt"))){
             String line;
             while ((line = br.readLine()) != null){
                 students.add(line);
@@ -218,6 +233,8 @@ public class stdManagementSysds {
         JOptionPane.showMessageDialog(null, "Updated successfully");
     }
     stdManagementSysds(){
+        checkForFile();
+        checkForDBSFile();
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -291,6 +308,12 @@ public class stdManagementSysds {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updStd();
+            }
+        });
+        submitButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeStd();
             }
         });
     }
